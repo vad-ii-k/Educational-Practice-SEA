@@ -1,0 +1,364 @@
+{% extends 'social_network_analysis/base.html' %}
+{% load jsonify %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'search/assets/vendors/iconly/bold.css' %}">
+<link rel="stylesheet" href="{% static 'search/assets/css/bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
+{% endblock %}
+
+{% block title %}
+Информация о пользователе
+{% endblock %}
+
+{% block content %}
+<section class="uza-services-area section-padding-80-0 mt-5 fullscreen">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-6 d-flex flex-column align-items-stretch">
+                <div class="card single-blog-post border m-2 rounded">
+                    <div class="card-header d-flex align-items-center">
+                        <div class="avatar avatar-xl">
+                            <img class="img-fluid" src="{{ profile.image_url }}" alt="Face">
+                        </div>
+                        <div class="ms-3 name">
+                            <h3 class="font-bold">{{ profile.first_name }} {{ profile.last_name }} {% if profile.is_closed %}(приватный){% endif %}</h3>
+                            <h4 class="text-muted mb-0">
+                                id:
+                                {% if profile.id_vk %}
+                                {{ profile.id_vk }}
+                                {% else %}
+                                {{ profile.id_ok }}
+                                {% endif %}
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="ms-3 mt-3 name">
+                                        <h5 class="font-bold">Город</h5>
+                                        <h6 class="text-muted mb-0">Анкетный: {{ profile.city }}</h6>
+                                        <h6 class="text-muted mb-0">Восстановленный: {{ profile.restored_city }}</h6>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="ms-3 mt-3 mb-3 name">
+                                        <h5 class="font-bold">Возраст</h5>
+                                        <h6 class="text-muted mb-0">Анкетный: {{ profile.age }}</h6>
+                                        <h6 class="text-muted mb-0">Восстановленный: {{ profile.restored_age }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 d-flex flex-column justify-content-end align-self-end h-100">
+                        <div>
+                            <button
+                                    type="button"
+                                    class="btn btn-light "
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                    type="button"
+                                    class="btn btn-primary"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card  single-blog-post border m-2 rounded h-100">
+                    <div class="card-content h-100">
+                        <div class="card-body h-100">
+                            <div class="d-flex flex-row d-flex justify-content-between">
+                                <h4 class="card-title">Социальный граф</h4>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-light"
+                                            onclick="openFullscreen('mynetwork')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                  d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"></path>
+                                        </svg>
+                                        <span class="visually-hidden"></span>
+                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button id="btnGroupDrop1" type="button"
+                                                class="btn btn-light dropdown-toggle"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Menu
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                            <a class="dropdown-item" href="#">Action</a>
+                                            <a class="dropdown-item" href="#">Dropdown link</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-1 h-100 justify-content-center">
+                                <div id="mynetwork">
+                                </div>
+                                <script>
+                                drawGraph({{ graph.graph.nodes|jsonify }}, {{ graph.graph.edges|jsonify }}, 'mynetwork');
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6">
+                <div class="row">
+                    <div class="col-md-6 d-flex align-items-stretch">
+                        <div class="card border m-2 w-100 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Аккаунты в соцсетях</h5>
+                                    <div class="ms-3 mt-3 name">
+                                        <h6><i class="fa fa-vk"></i> ВКонтакте</h6>
+                                        <h6 class="text-muted mb-0">id:{{ profile.id_vk }}</h6>
+                                    </div>
+                                    <div class="ms-3 mt-3 name">
+                                        <h6><i class="fa fa-odnoklassniki"></i> Одноклассники</h6>
+                                        <h6 class="text-muted mb-0">id:{{ profile.id_ok }}</h6>
+                                    </div>
+                                    <div class="ms-3 mt-3 name">
+                                        <h6><i class="fa fa-instagram"></i> Intagram</h6>
+                                        <h6 class="text-muted mb-0">id:{{ profile.id_inst }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-stretch">
+                        <div class="card border m-2 w-100 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Ближайшие друзья</h5>
+                                    {% for friend in graph.close_friends %}
+                                    <div class="d-flex ms-3 mt-3 py-2 align-items-center">
+                                        <div class="avatar avatar-lg">
+                                            {% if friend.pic190x190 %}
+                                            <img src="{{friend.pic190x190}}">
+                                            {% else %}
+                                            <img src="{{friend.photo_200}}">
+                                            {% endif %}
+                                        </div>
+                                        <div class="name ms-4">
+                                            <h6 class="mb-1">{{friend.first_name}}
+                                                {{friend.last_name}}</h6>
+                                            <h6 class="text-muted mb-0">id:
+                                                {% if friend.id %}
+                                                {{friend.id}}
+                                                {% else %}
+                                                {{friend.uid}}
+                                                {% endif %}
+                                            </h6>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 d-flex align-items-stretch">
+                        <div class="card border m-2 w-100 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Анкетные данные</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="ms-3 mt-3 name">
+                                                <h6>Имя</h6>
+                                                <h6 class="text-muted mb-0">{{ profile.first_name }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="ms-3 mt-3 name">
+                                                <h6>Фамилия</h6>
+                                                <h6 class="text-muted mb-0">{{ profile.last_name }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="ms-3 mt-3 name">
+                                                <h6>Город:</h6>
+                                                <h6 class="text-muted mb-0">{{ profile.city }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="ms-3 mt-3 name">
+                                                <h6>Возраст</h6>
+                                                <h6 class="text-muted mb-0">{{ profile.age }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-stretch">
+                        <div class="card border m-2 w-100 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Психические особенности</h5>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 d-flex align-items-stretch">
+                        <div class="card border m-2 w-100 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Рекомендации</h5>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex flex-column align-items-stretch">
+                        <div class="card border m-2 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Психические особенности</h5>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card border m-2 single-blog-post">
+                            <div class="card-content">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <h5 class="ms-3 mt-3 font-bold">Оценки по СИА</h5>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex flex-column justify-content-end align-self-end h-100">
+                                <div>
+                                    <button
+                                            type="button"
+                                            class="btn btn-light "
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</section>
+{% endblock %}
+
+

@@ -1,0 +1,104 @@
+{% extends 'social_network_analysis/base.html'%}
+{% load socialaccount %}
+{% load static %}
+
+{% block title %}
+Поиск пользователя
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'search/assets/css/bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="uza-services-area section-padding-80-0 fullscreen mt-5">
+    {% if error %}
+    <script>
+        $(document).ready( function() {
+            $.alert({
+                icon: 'fa fa-warning',
+                type: 'orange',
+                title: 'Ошибка!',
+                content: '{% for e in error %}{{e}}\n{% endfor %}',
+            });
+        });
+
+    </script>
+    {% endif %}
+    {% get_social_accounts user as accounts %}
+    {% if not accounts.vk %}
+    <div class="container text-center" style="width: 20rem; margin-top: 2rem">
+        <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+            Пожалуйста, подключите социальный аккаунт ВК к своей учетной записи!
+        </div>
+        <p class="lead">
+        <div class="socialaccount_ballot">
+            <a class="btn btn-primary w-100" href="{% url 'socialaccount_connections' %}">Подключить аккаунты</a>
+        </div>
+        </p>
+    </div>
+    {% elif not vk_token.is_valid %}
+    <div class="container text-center" style="width: 20rem; margin-top: 2rem">
+        <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+            Ваш токен ВКонтакте истек!
+        </div>
+        <p class="lead">
+            <a class="btn btn-primary w-100" href="/accounts/vk/login/?process=login"><i class="fa fa-vk"
+                                                                                         aria-hidden="true"></i>Обновить
+                токен</a>
+        </p>
+    </div>
+    {% else %}
+    <div class="container">
+        <div class="row h-100">
+            <!-- Section Heading -->
+            <div class="col-12">
+                <div class="section-heading text-center">
+                    <h2>Анализ пользователя социальной сети</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card single-blog-post">
+                    <div class="card-content">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="input-group input-group-lg">
+                                            <select class="input-group-text"
+                                                    onchange="location = this.options[this.selectedIndex].value;">
+                                                <option value="{% url 'analyze' network='vk' %}">
+                                                    vk.com/
+                                                </option>
+                                                <option value="{% url 'analyze' network='ok' %}">
+                                                    ok.ru/
+                                                </option>
+                                            </select>
+                                            {{ vk_form.id_vk }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <button
+                                                type="submit"
+                                                class="btn btn-primary w-100"
+                                                data-toggle="modal"
+                                                data-target="#res"
+                                        >
+                                            Начать анализ
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
