@@ -2,59 +2,41 @@
 try {
     require('vis-network');
 } catch (e) { }
-function drawGraph(pNodes, pEdges, nodeId) {
-    var edges;
-    var nodes;
-    var network;
-    var container;
-    var options, data;
-    var container = document.getElementById(nodeId);
 
+function drawGraph(pNodes, pEdges, options, elementId) {
     // parsing and collecting nodes and edges from the python
-    nodes = new vis.DataSet(pNodes);
-    edges = new vis.DataSet(pEdges);
+    var nodes = new vis.DataSet(pNodes);
+    var edges = new vis.DataSet(pEdges);
+    var container = document.getElementById(elementId);
 
     // adding nodes and edges to the graph
-    data = {nodes: nodes, edges: edges};
+    var data = {nodes: nodes,
+                edges: edges};
 
-    var options = {
-        "autoResize" : true,
-        "configure": {
-            "enabled": false,
-        },
-        "edges": {
-            "color": {
-                "inherit": true
-            },
-            "smooth": {
-                "enabled": false,
-                "type": "continuous"
-            }
-        },
-        "interaction": {
-            "dragNodes": true,
-            "hideEdgesOnDrag": false,
-            "hideNodesOnDrag": false
-        },
-        "physics": {
-            "barnesHut": {
-                "avoidOverlap": 0.1,
-                "centralGravity": 2,
-                "damping": 0.09,
-                "gravitationalConstant": -80000,
-                "springConstant": 0.01,
-                "springLength": 250
-            },
-            "enabled": true,
-            "stabilization": {
-                "enabled": true,
-                "fit": true,
-                "iterations": 1000,
-                "onlyDynamicEdges": false,
-                "updateInterval": 50
-            }
+    var network = new vis.Network(container, data, options);
+
+    setTimeout(function() {
+      var options = {offset: {x:0, y:0},
+        duration: 2000,
+      };
+      network.fit({animation: options});
+    }, 1000);
+
+    network.on("click", function (params) {
+        if (params.nodes.length > 0) {
+            var nodeId = params.nodes[0];
+            var networkInfo = document.getElementById("networkInfo");
+            networkInfo.innerText = "Выбрана вершина \nid: " + nodeId + "\n" + nodes.get(nodeId).title;
+            nodeImage.src = nodes.get(nodeId).image;
+            nodeHref.href = "https://vk.com/id" + nodeId;
+            nodeHref.style.display = 'block';
         }
-    };
-
-    network = new vis.Network(container, data, options);
+        else if (params.edges.length > 0) {
+            var edgeId = params.edges[0];
+            var networkInfo = document.getElementById("networkInfo");
+            networkInfo.innerText = "Выбрана связь \n" + edges.get(edgeId).title + " \nВес: " + edges.get(edgeId).value;
+            nodeHref.href = "";
+            nodeHref.style.display = 'none';
+        }
+    });
 }

@@ -71,41 +71,117 @@
                         </div>
                     </div>
                 </div>
-                <div class="card  single-blog-post border m-2 rounded h-100">
+                <div class="card single-blog-post border m-2 rounded h-100">
                     <div class="card-content h-100">
                         <div class="card-body h-100">
                             <div class="d-flex flex-row d-flex justify-content-between">
                                 <h4 class="card-title">Социальный граф</h4>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-light"
-                                            onclick="openFullscreen('mynetwork')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             fill="currentColor"
-                                             class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd"
-                                                  d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"></path>
-                                        </svg>
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <div class="btn-group" role="group">
-                                        <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-light dropdown-toggle"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            Menu
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Dropdown link</a>
+                                <button type="button" class="btn btn-light"
+                                        onclick='openFullscreen("fullNetwork")'>
+                                        <style>
+                                            :fullscreen {
+                                                background-color: white;
+                                                border: 20px solid white;
+                                            }
+                                        </style>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                         fill="currentColor"
+                                         class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                              d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"></path>
+                                    </svg>
+                                    <span class="visually-hidden"></span>
+                                </button>
+                            </div>
+                            <div class="p-1 h-100 justify-content-right">
+                                <div id="fullNetwork" class="row align-items-start">
+                                    <div class="col-2 bg-light p-2 border">
+                                        <div class="btn-group-vertical w-100">
+                                            <p class="text-dark lh-1" style="font-size: 1rem;">Веса на основе:</p>
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="on" checked>
+                                            <label class="btn btn-outline-primary btn-sm" style="text-align: left; font-size: 0.8rem;" for="btnradio1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" style="position: relative; bottom: 2px;" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                                    <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                                                    <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                                                </svg>
+                                                Общих друзей
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                                            <label class="btn btn-outline-primary btn-sm" style="text-align: left; font-size: 0.8rem;" for="btnradio2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" style="position: relative; bottom: 2px;" width="16" height="16" fill="currentColor" class="bi bi-gift-fill" viewBox="0 0 16 16">
+                                                    <path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A2.968 2.968 0 0 1 3 2.506V2.5zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43a.522.522 0 0 0 .023.07zM9 3h2.932a.56.56 0 0 0 .023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0V3zm6 4v7.5a1.5 1.5 0 0 1-1.5 1.5H9V7h6zM2.5 16A1.5 1.5 0 0 1 1 14.5V7h6v9H2.5z"/>
+                                                </svg>
+                                                Подарков
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                                            <label class="btn btn-outline-primary btn-sm" style="text-align: left; font-size: 0.8rem;" for="btnradio3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" style="position: relative; bottom: 2px;" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                                </svg>
+                                                Лайков
+                                            </label>
+
+                                            <!--input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off">
+                                            <label class="btn btn-outline-primary btn-sm" style="text-align: left; font-size: 0.8rem;" for="btnradio4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" style="position: relative; bottom: 2px;" width="16" height="16" fill="currentColor" class="bi bi-megaphone-fill" viewBox="0 0 16 16">
+                                                    <path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-11zm-1 .724c-2.067.95-4.539 1.481-7 1.656v6.237a25.222 25.222 0 0 1 1.088.085c2.053.204 4.038.668 5.912 1.56V3.224zm-8 7.841V4.934c-.68.027-1.399.043-2.008.053A2.02 2.02 0 0 0 0 7v2c0 1.106.896 1.996 1.994 2.009a68.14 68.14 0 0 1 .496.008 64 64 0 0 1 1.51.048zm1.39 1.081c.285.021.569.047.85.078l.253 1.69a1 1 0 0 1-.983 1.187h-.548a1 1 0 0 1-.916-.599l-1.314-2.48a65.81 65.81 0 0 1 1.692.064c.327.017.65.037.966.06z"/>
+                                                </svg>
+                                                Репостов
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off">
+                                            <label class="btn btn-outline-primary btn-sm" style="text-align: left; font-size: 0.8rem;" for="btnradio5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" style="position: relative; bottom: 2px;" width="16" height="16" fill="currentColor" class="bi bi-chat-right-text-fill" viewBox="0 0 16 16">
+                                                    <path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353V2zM3.5 3h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1zm0 2.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1zm0 2.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>
+                                                </svg>
+                                                Комментариев
+                                            </label-->
+                                        </div>
+                                        <div>
+                                            <p class="text-dark lh-1.25" id="networkInfo" style="font-size:0.9rem;">
+                                                Нажмите на вершину или связь, чтобы увидеть информацию
+                                            </p>
+                                            <a id="nodeHref" target="_blank">
+                                                <img id="nodeImage" class="rounded mx-auto d-block"
+                                                style="border: 5px solid transparent;"
+                                                onmouseover="this.style.borderColor='#007bff', this.style.border='5px;'"
+                                                onmouseout="this.style.borderColor='white', this.style.border = '0px;'">
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-10 h-100 bg-light p-2 border">
+                                        <div id='mynetwork'>
+                                            <script>
+                                                function callDrawGraph(edges){
+                                                    drawGraph(
+                                                        {{ graph.graph.nodes|jsonify }},
+                                                        edges,
+                                                        {{ graph.graph.options|jsonify }},
+                                                        'mynetwork'
+                                                    );
+                                                    networkInfo.innerText = "Нажмите на вершину или связь, чтобы увидеть информацию";
+                                                    nodeHref.style.display = 'none';
+                                                }
+
+                                                window.onload = function() {
+                                                    callDrawGraph({{ graph.graph.edges|jsonify }});
+                                                };
+                                                btnradio1.onclick = function() {
+                                                    callDrawGraph({{ graph.graph.edges|jsonify }});
+                                                };
+                                                btnradio2.onclick = function() {
+                                                    callDrawGraph({{ graph.gifts|jsonify }});
+                                                };
+                                                btnradio3.onclick = function() {
+                                                    callDrawGraph({{ graph.likes|jsonify }});
+                                                };
+                                            </script>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="p-1 h-100 justify-content-center">
-                                <div id="mynetwork">
-                                </div>
-                                <script>
-                                drawGraph({{ graph.graph.nodes|jsonify }}, {{ graph.graph.edges|jsonify }}, 'mynetwork');
-                                </script>
                             </div>
                         </div>
                     </div>
@@ -360,5 +436,3 @@
     </div>
 </section>
 {% endblock %}
-
-
