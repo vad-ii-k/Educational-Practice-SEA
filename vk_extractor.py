@@ -65,7 +65,7 @@ def get_friends_list(token, uid):
     """Return a response from vk api friends.get
 
     :param token: access token
-    :param uid: users id
+    :param uid: user id
     :return: dict with friends ids
 
     example: {'count' : 2, 'items': [213412, 124124]}
@@ -95,8 +95,8 @@ def get_mutual_friends(token, source_uid, target_uids):
     :return: dictionary with pairs of user id - list of mutual friends ids
 
     example: {friend id: [mutual id 1, mutual id 2, ...]}
-
     """
+
     vk_session = vk_api.VkApi(token=token)
     vk = vk_session.get_api()
 
@@ -119,9 +119,18 @@ def get_mutual_friends(token, source_uid, target_uids):
     return mutual_friends
 
 
+#Class for collecting statistics about the interaction of friends
 class FriendsStatistics:
 
     def __init__(self, token, uid, friends_ids, active_friends_ids, mutual_friends):
+        """
+        :param token: access token
+        :param uid: user id
+        :param friends_ids: list of user's friends IDs
+        :param active_friends_ids: list of non-deactivated and non-closed user's friends IDs
+        :param mutual_friends: dictionary of IDs of the user's friends and friends common with him and a friend
+        """
+        
         self.token = token
         self.uid = uid
         self.friends_ids = friends_ids
@@ -135,6 +144,11 @@ class FriendsStatistics:
         self.comments = self._get_comments()
 
     def _create_incidence_list(self):
+        """Method for creating a list of friends incidents to fill in statistics
+        :return: empty dict of friends incidents
+        example: {uid : {{friend_id1: 0}, {friend_id2: 0}, ..., {uid: 0}}, friend_id2 : {{friend_id3: 0}, ..., {uid: 0}}, ...}
+        """
+
         mutual_friends = copy.deepcopy(self.mutual_friends)
 
         incidence_list = {}
@@ -147,12 +161,23 @@ class FriendsStatistics:
         return incidence_list
 
     def _create_uids_batches(self):
+        """Method for dividing the active_friends_ids list into parts of 25 in each for using pool requests
+        :return: list, each of elements of which, with the possible exception of the last one, contains IDs of 25 active friends of user
+        example: [[active_friend_id1, ..., active_friend_id25], ..., [active_friend_id100, ..., active_friend_id115]]
+        """
+
         active_friends_ids = copy.deepcopy(self.active_friends_ids)
         active_friends_ids.append(self.uid)
         uids_batches = [active_friends_ids[i:i + 25] for i in range(0, len(active_friends_ids), 25)]
         return uids_batches
 
     def _send_vk_requests_one_param_pool(self, method, key, **default_values):
+        """Wrapper over vk_request_one_param_pool to get information for all friends at once
+            read https://vk-api.readthedocs.io/en/latest/requests_pool.html
+        param method: VK API method
+        param key: key for request dict, is name of one of parameters for request
+        """
+
         vk_session = vk_api.VkApi(token=self.token)
         responses = {}
         for batch in self.uids_batches:
@@ -167,6 +192,11 @@ class FriendsStatistics:
         return responses
 
     def _get_gifts(self):
+        """Method for collecting data about friends' gifts
+        :return: completed dict of incidents
+        example: {uid : {{friend_id1: weight_1}, {friend_id2: weight_2}, ..., {uid: weight_3}}, friend_id2 : {{friend_id3: weight_4}, ..., {uid: weight_5}}, ...}
+        """
+
         active_friends_ids = copy.deepcopy(self.active_friends_ids)
 
         gifts = self._send_vk_requests_one_param_pool('gifts.get', 'user_id', 
@@ -179,11 +209,20 @@ class FriendsStatistics:
         return friends_gifts
 
     def _get_walls(self):
+        """Method for collecting data about friends' walls for further collection of statistics about the last 25 posts
+        :return: dict of usual wall.get method responses, where key is owner_id and value is response
+        """
+
         walls = self._send_vk_requests_one_param_pool('wall.get', 'owner_id', 
                 filter='owner', count=25, v=settings.api_v)
         return walls
 
     def _get_likes(self):
+        """Method for collecting data about friends' likes
+        :return: completed dict of incidents
+        example: {uid : {{friend_id1: weight_1}, {friend_id2: weight_2}, ..., {uid: weight_3}}, friend_id2 : {{friend_id3: weight_4}, ..., {uid: weight_5}}, ...}
+        """
+
         vk_session = vk_api.VkApi(token=self.token)
 
         friends_likes = copy.deepcopy(self.incidence_list)
@@ -205,6 +244,11 @@ class FriendsStatistics:
         return friends_likes
 
     def _get_comments(self):
+        """Method for collecting data about friends' comments
+        :return: completed dict of incidents
+        example: {uid : {{friend_id1: weight_1}, {friend_id2: weight_2}, ..., {uid: weight_3}}, friend_id2 : {{friend_id3: weight_4}, ..., {uid: weight_5}}, ...}
+        """
+
         vk_session = vk_api.VkApi(token=self.token)
 
         friends_comments = copy.deepcopy(self.incidence_list)
