@@ -4,7 +4,8 @@ from .extractors.exceptions import UserIdError, ApiRequestError
 from .models import VKUser, OKUser
 from .tokens.tokens import VKSocialToken, OKSocialToken
 from .dbqueries import get_ok_app_secret_key, get_ok_app_key
-from .extractors.vk_extractor import get_mutual_friends as vk_get_mutual, get_friends_gifts as vk_get_gifts, get_friends_likes as vk_get_likes
+from .extractors.vk_extractor import get_mutual_friends as vk_get_mutual
+from .extractors.vk_extractor import FriendsStatistics
 from .extractors.ok_extractor import get_mutual_friends as ok_get_mutual
 from .forms import VKUserForm, OKUserForm
 from .profiles_matching.prediction import get_predict
@@ -87,9 +88,11 @@ def _get_vk_analyze_context(request):
                 active_friends_ids = list(friend.get('id') for friend in profile.friends.get('items') if not('deactivated' in friend or friend.get('is_closed')))
                 mutual = vk_get_mutual(token.token, profile.id_vk, active_friends_ids)
                 friend_uids = list(friend.get('id') for friend in profile.friends.get('items'))
-                gifts = vk_get_gifts(token.token, profile.id_vk, active_friends_ids, friend_uids, mutual)
-                likes = vk_get_likes(token.token, profile.id_vk, active_friends_ids, friend_uids, mutual)
-                graph = SocialGraph(profile, friend_uids, mutual, gifts, likes)
+                stats = FriendsStatistics(token.token, profile.id_vk, active_friends_ids, friend_uids, mutual)
+                gifts = stats.gifts
+                likes = stats.likes
+                comments = stats.comments
+                graph = SocialGraph(profile, friend_uids, mutual, gifts, likes, comments)
             else:
                 for es in vk_form.errors.values():
                     errors.extend(error for error in es)
