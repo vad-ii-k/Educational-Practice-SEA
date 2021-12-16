@@ -6,13 +6,14 @@ from pyvis.network import Network
 
 class SocialGraph:
 
-    def __init__(self, user, friend_uids, mutual, gifts, likes):
+    def __init__(self, user, friend_uids, mutual, gifts, likes, comments):
         self.user = user
         self.mutual = mutual
         self.friend_uids = friend_uids
         self.graph = self._get_graph()
         self.gifts = self._get_edges_from_metrics(gifts)
         self.likes = self._get_edges_from_metrics(likes)
+        self.comments = self._get_edges_from_metrics(comments)
         self.close_friends = self._get_close_friends()
 
     def _get_graph(self):
@@ -126,8 +127,6 @@ class SocialGraph:
                     }
                 }
             ''')
-
-        #graph.show("Social graph of user " + str(self.user.uid) + ".html")
 
         return graph
 
