@@ -119,10 +119,10 @@ def get_mutual_friends(token, source_uid, target_uids):
     return mutual_friends
 
 
-#Class for collecting statistics about the interaction of friends
 class FriendsStatistics:
+    """Class for collecting statistics about the interaction of friends"""
 
-    def __init__(self, token, uid, friends_ids, active_friends_ids, mutual_friends):
+    def __init__(self, token, uid, friends_ids, active_friends_ids):
         """
         :param token: access token
         :param uid: user id
@@ -133,32 +133,38 @@ class FriendsStatistics:
         
         self.token = token
         self.uid = uid
-        self.friends_ids = friends_ids
-        self.active_friends_ids = active_friends_ids
-        self.mutual_friends = mutual_friends
-        self.incidence_list = self._create_incidence_list()
+        self.friends_ids = copy.deepcopy(friends_ids)
+        self.friends_ids.append(uid)
+        self.active_friends_ids = copy.deepcopy(active_friends_ids)
+        self.active_friends_ids.append(uid)
         self.uids_batches = self._create_uids_batches()
         self.walls = self._get_walls()
-        self.gifts = self._get_gifts()
-        self.likes = self._get_likes()
-        self.comments = self._get_comments()
 
-    def _create_incidence_list(self):
-        """Method for creating a list of friends incidents to fill in statistics
-        :return: empty dict of friends incidents
-        example: {uid : {{friend_id1: 0}, {friend_id2: 0}, ..., {uid: 0}}, friend_id2 : {{friend_id3: 0}, ..., {uid: 0}}, ...}
-        """
+    def _filling_stats(self, responses, stats, friend_id):
+        """Method for filling in dict of statistics on response from the API"""
 
-        mutual_friends = copy.deepcopy(self.mutual_friends)
-
-        incidence_list = {}
-        mutual_friends.update({self.uid: self.friends_ids})
-        for friend in mutual_friends:
-            incidence_list.update({friend: {}})
-            for mutual in mutual_friends[friend]:
-                incidence_list[friend].update({mutual: 0})
-            incidence_list[friend].update({self.uid: 0})
-        return incidence_list
+        if friend_id == 0:
+            for user_id in responses:
+                if user_id in self.friends_ids:
+                    stats.update({user_id: {}})
+                    for item in responses[user_id]['items']:
+                        item_from_id = item['from_id']
+                        if item_from_id in self.friends_ids:
+                            if item_from_id in stats[user_id]:
+                                stats[user_id][item_from_id] += 1
+                            else:
+                                stats[user_id].update({item_from_id: 1})
+        else:
+            if friend_id not in stats:
+                stats.update({friend_id: {}})
+            for response_id in responses:
+                for item in responses[response_id]['items']:
+                    item_from_id = item if isinstance(item, int) else item['from_id']
+                    if item_from_id in self.friends_ids:
+                        if item_from_id in stats[friend_id]:
+                            stats[friend_id][item_from_id] += 1
+                        else:
+                            stats[friend_id].update({item_from_id: 1})
 
     def _create_uids_batches(self):
         """Method for dividing the active_friends_ids list into parts of 25 in each for using pool requests
@@ -166,9 +172,7 @@ class FriendsStatistics:
         example: [[active_friend_id1, ..., active_friend_id25], ..., [active_friend_id100, ..., active_friend_id115]]
         """
 
-        active_friends_ids = copy.deepcopy(self.active_friends_ids)
-        active_friends_ids.append(self.uid)
-        uids_batches = [active_friends_ids[i:i + 25] for i in range(0, len(active_friends_ids), 25)]
+        uids_batches = [self.active_friends_ids[i:i + 25] for i in range(0, len(self.active_friends_ids), 25)]
         return uids_batches
 
     def _send_vk_requests_one_param_pool(self, method, key, **default_values):
@@ -191,21 +195,16 @@ class FriendsStatistics:
             responses.update(response)
         return responses
 
-    def _get_gifts(self):
+    def get_gifts(self):
         """Method for collecting data about friends' gifts
         :return: completed dict of incidents
         example: {uid : {{friend_id1: weight_1}, {friend_id2: weight_2}, ..., {uid: weight_3}}, friend_id2 : {{friend_id3: weight_4}, ..., {uid: weight_5}}, ...}
         """
 
-        active_friends_ids = copy.deepcopy(self.active_friends_ids)
-
         gifts = self._send_vk_requests_one_param_pool('gifts.get', 'user_id', 
                 count=1000, v=settings.api_v)
-        friends_gifts = copy.deepcopy(self.incidence_list)
-        for friend_id in gifts:
-            for gift in gifts[friend_id]['items']:
-                if friend_id in friends_gifts and gift['from_id'] in friends_gifts[friend_id]:
-                    friends_gifts[friend_id][gift['from_id']] += 1
+        friends_gifts = {}
+        self._filling_stats(gifts, friends_gifts, 0)
         return friends_gifts
 
     def _get_walls(self):
@@ -217,7 +216,7 @@ class FriendsStatistics:
                 filter='owner', count=25, v=settings.api_v)
         return walls
 
-    def _get_likes(self):
+    def get_likes(self):
         """Method for collecting data about friends' likes
         :return: completed dict of incidents
         example: {uid : {{friend_id1: weight_1}, {friend_id2: weight_2}, ..., {uid: weight_3}}, friend_id2 : {{friend_id3: weight_4}, ..., {uid: weight_5}}, ...}
@@ -225,7 +224,7 @@ class FriendsStatistics:
 
         vk_session = vk_api.VkApi(token=self.token)
 
-        friends_likes = copy.deepcopy(self.incidence_list)
+        friends_likes = {}
         for friend_id in self.walls:
             wall = self.walls[friend_id]['items']
             posts_ids = [wall[i]['id'] for i in range(len(wall))]
@@ -237,13 +236,10 @@ class FriendsStatistics:
                     values=posts_ids,
                     default_values={'owner_id': friend_id, 'type': 'post', 'filter': 'likes', 'count': 100, 'v': settings.api_v}
                     )
-                for post_id in likes_of_posts:
-                    for like_uid in likes_of_posts[post_id]['items']:
-                        if friend_id in friends_likes and like_uid in friends_likes[friend_id]:
-                            friends_likes[friend_id][like_uid] += 1
+                self._filling_stats(likes_of_posts, friends_likes, friend_id)
         return friends_likes
 
-    def _get_comments(self):
+    def get_comments(self):
         """Method for collecting data about friends' comments
         :return: completed dict of incidents
         example: {uid : {{friend_id1: weight_1}, {friend_id2: weight_2}, ..., {uid: weight_3}}, friend_id2 : {{friend_id3: weight_4}, ..., {uid: weight_5}}, ...}
@@ -251,7 +247,7 @@ class FriendsStatistics:
 
         vk_session = vk_api.VkApi(token=self.token)
 
-        friends_comments = copy.deepcopy(self.incidence_list)
+        friends_comments = {}
         for friend_id in self.walls:
             wall = self.walls[friend_id]['items']
             posts_ids = [wall[i]['id'] for i in range(len(wall))]
@@ -263,8 +259,5 @@ class FriendsStatistics:
                     values=posts_ids,
                     default_values={'owner_id': friend_id,  'count': 100, 'preview_length': 1, 'v': settings.api_v}
                     )
-                for post_id in comments_of_posts:
-                    for comment in comments_of_posts[post_id]['items']:
-                        if friend_id in friends_comments and comment['from_id'] in friends_comments[friend_id]:
-                            friends_comments[friend_id][comment['from_id']] += 1
+                self._filling_stats(comments_of_posts, friends_comments, friend_id)
         return friends_comments

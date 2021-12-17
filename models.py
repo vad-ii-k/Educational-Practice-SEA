@@ -29,7 +29,10 @@ class UserBase(models.Model):
     company = models.CharField('Компания', max_length=50, null=True)
     image_url = models.CharField('Аватар', max_length=200, null=True)
     creditworthiness = models.CharField('Кредитоспособность', max_length=200, null=True)
-    friends = models.JSONField(null=True)
+    friends = models.JSONField('Друзья', null=True)
+    friends_gifts = models.JSONField('Подарки друзей', null=True)
+    friends_likes = models.JSONField('Лайки друзей', null=True)
+    friends_comments = models.JSONField('Комментарии друзей', null=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

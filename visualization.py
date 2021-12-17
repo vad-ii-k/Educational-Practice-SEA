@@ -136,7 +136,7 @@ class SocialGraph:
         for friend1 in metric:
             for friend2 in metric[friend1]:
                 if metric[friend1][friend2] > 0:
-                    if self.user.uid == friend1 or self.user.uid == friend2:
+                    if self.user.uid == int(friend1) or self.user.uid == int(friend2):
                         edges.append({
                             'from': friend2,
                             'to': friend1,
