@@ -39,4 +39,22 @@ function drawGraph(pNodes, pEdges, options, elementId) {
             nodeHref.style.display = 'none';
         }
     });
+
+    network.on("doubleClick", function (params) {
+        edges.update(pEdges);
+        if (params.nodes.length > 0) {
+            var allEdges = edges.get({ returnType: "Object" });
+            var selectedNodeId = params.nodes[0];
+            var connectedEdges = network.getConnectedEdges(selectedNodeId);
+
+            var updateArray = [];
+            for (var edgeId in allEdges) {
+                if (!connectedEdges.includes(edgeId)) {
+                    allEdges[edgeId].color = "rgba(200,200,200,0.5)";
+                    updateArray.push(allEdges[edgeId]);
+                }
+            }
+            edges.update(updateArray);
+        }
+    });
 }

@@ -38,7 +38,7 @@ class SocialGraph:
                 shape="circularImage",
                 label=value.get('last_name'),
                 title=value.get('first_name') + ' ' + value.get('last_name'),
-                color='#000000',
+                color='#007bff',
                 size=35,
                 mas=4,
                 image=value.get('photo_200') or value.get('pic190x190')
@@ -50,8 +50,9 @@ class SocialGraph:
                     graph.add_edge(
                         int(friend1),
                         int(friend2),
+                        color='#007bff',
                         value=len(list(set(self.mutual[friend1]) & set(self.mutual[friend2]))) if friend2 in self.mutual else 0,
-                        title='from: ' + graph.get_node(int(friend1))['title'] + '\nto:   ' + graph.get_node(int(friend2))['title']
+                        title='от: ' + graph.get_node(int(friend1))['title'] + '\nк:   ' + graph.get_node(int(friend2))['title']
                     )
         for friend in self.friend_uids:
             graph.add_edge(
@@ -59,7 +60,7 @@ class SocialGraph:
                 int(friend),
                 color='#FF7092',
                 value=len(self.mutual[friend]) if friend in self.mutual else 0,
-                title='from: ' + graph.get_node(int(self.user.uid))['title'] + '\nto:   ' + graph.get_node(int(friend))['title']
+                title='от: ' + graph.get_node(int(self.user.uid))['title'] + '\nк:   ' + graph.get_node(int(friend))['title']
             )
 
         graph.set_options('''
@@ -143,7 +144,7 @@ class SocialGraph:
                             'arrows': 'middle',
                             'value': metric[friend1][friend2],
                             'color': '#FF7092',
-                            'title': 'from: ' + self.graph.get_node(int(friend2))['title'] + '\nto:   ' + self.graph.get_node(int(friend1))['title']
+                            'title': 'от: ' + self.graph.get_node(int(friend2))['title'] + '\nк:   ' + self.graph.get_node(int(friend1))['title']
                             })
                     else:
                         edges.append({
@@ -151,7 +152,8 @@ class SocialGraph:
                             'to': friend1,
                             'arrows': 'to',
                             'value': metric[friend1][friend2],
-                            'title': 'from: ' + self.graph.get_node(int(friend2))['title'] + '\nto:   ' + self.graph.get_node(int(friend1))['title']
+                            'color': '#007bff',
+                            'title': 'от: ' + self.graph.get_node(int(friend2))['title'] + '\nк:   ' + self.graph.get_node(int(friend1))['title']
                             })
         return edges
 

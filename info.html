@@ -144,7 +144,6 @@
                                         </div>
                                         <div>
                                             <p class="text-dark lh-1.25" id="networkInfo" style="font-size:0.9rem;">
-                                                Нажмите на вершину или связь, чтобы увидеть информацию
                                             </p>
                                             <a id="nodeHref" target="_blank">
                                                 <img id="nodeImage" class="rounded mx-auto d-block"
@@ -164,7 +163,7 @@
                                                         {{ graph.graph.options|jsonify }},
                                                         'mynetwork'
                                                     );
-                                                    networkInfo.innerText = "Нажмите на вершину или связь, чтобы увидеть информацию";
+                                                    networkInfo.innerText = "Нажмите на вершину или связь, чтобы увидеть информацию. \nНажмите на вершину два раза, чтобы выделить соседей.";
                                                     nodeHref.style.display = 'none';
                                                 }
 
